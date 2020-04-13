@@ -1,0 +1,9 @@
+hid==1.0.4
+libinfinitton==0.3
+Pillow==7.1.1
+PyEventEmitter==1.0.5
+PySide2==5.14.2
+pystray==0.15.0
+python-xlib==0.27
+shiboken2==5.14.2
+six==1.14.0
