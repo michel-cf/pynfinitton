@@ -1,9 +1,9 @@
 import os
 import sys
 
-import pystray
-from PIL import Image, ImageDraw
-from PySide2.QtWidgets import QApplication, QWidget
+from PIL import Image, ImageDraw, ImageQt
+from PySide2.QtGui import QIcon, QPixmap
+from PySide2.QtWidgets import QApplication, QWidget, QSystemTrayIcon, QMenu, QAction
 
 import gui
 
@@ -21,27 +21,29 @@ if __name__ == '__main__':
 
     os.chdir(application_path)
 
-
-    def setup(taskbar_icon: pystray.Icon):
-        taskbar_icon.visible = True
-
-        app = QApplication(sys.argv)
-
-        main_screen = QWidget()
-        window = gui.MainWindow(main_screen)
-        window.resize(800, 600)
-        window.show()
-
-        app.exec_()
-        taskbar_icon.stop()
-
-    width = 16
-    height = 16
+    width = 128
+    height = 128
     image = Image.new('RGB', (width, height))
     dc = ImageDraw.Draw(image)
     dc.rectangle((width // 2, 0, width, height // 2), fill=(200, 200, 0))
     dc.rectangle((0, height // 2, width // 2, height), fill=(0, 100, 100))
 
-    icon = pystray.Icon('Pynfinitton')
-    icon.icon = image
-    icon.run(setup)
+    app = QApplication(sys.argv)
+
+    main_screen = QWidget()
+    window = gui.MainWindow(main_screen)
+    window.resize(800, 600)
+    window.show()
+
+    tray_icon_menu = QMenu()
+    tray_icon_menu_open_action = QAction("Open")
+    tray_icon_menu.addAction(tray_icon_menu_open_action)
+
+    icon = QIcon(QPixmap.fromImage(ImageQt.ImageQt(image)))
+    tray_icon = QSystemTrayIcon(icon, window)
+    tray_icon.setToolTip("Pynfinitton")
+    tray_icon.setContextMenu(tray_icon_menu)
+    tray_icon.show()
+
+    sys.exit(app.exec_())
+
