@@ -2,8 +2,11 @@ import os
 import sys
 
 from PIL import Image, ImageDraw, ImageQt
+from PySide2.QtCore import QTranslator, QLocale
 from PySide2.QtGui import QIcon, QPixmap
-from PySide2.QtWidgets import QApplication, QWidget, QSystemTrayIcon, QMenu, QAction
+from PySide2.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction
+
+import logic
 
 import gui
 
@@ -19,8 +22,12 @@ if __name__ == '__main__':
     else:
         application_path = os.path.dirname(__file__)
 
+    path = os.path.abspath(application_path)
     os.chdir(application_path)
 
+    device_manager = logic.DeviceManager()
+
+    # If graphical
     width = 128
     height = 128
     image = Image.new('RGB', (width, height))
@@ -30,14 +37,19 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    main_screen = QWidget()
-    window = gui.MainWindow(main_screen)
+    translator = QTranslator()
+    translator.load(QLocale('nl'), 'pynfinitton', '.', directory=os.path.join(path, 'resources', 'translations'))
+    app.installTranslator(translator)
+
+    window = gui.MainWindow(device_manager)
     window.resize(800, 600)
     window.show()
 
     tray_icon_menu = QMenu()
     tray_icon_menu_open_action = QAction("Open")
     tray_icon_menu.addAction(tray_icon_menu_open_action)
+    tray_icon_menu_close_action = QAction("Close")
+    tray_icon_menu.addAction(tray_icon_menu_close_action)
 
     icon = QIcon(QPixmap.fromImage(ImageQt.ImageQt(image)))
     tray_icon = QSystemTrayIcon(icon, window)
