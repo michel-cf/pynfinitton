@@ -32,6 +32,9 @@ class MainWindow(QMainWindow):
 
     def check_device_state(self):
         if self._device_manager.is_connected():
-            self.status_message.setText(QCoreApplication.translate('device', 'Infinitton device connected'))
+            if self._device_manager.is_active():
+                self.status_message.setText(QCoreApplication.translate('device', 'Infinitton device is active'))
+            else:
+                self.status_message.setText(QCoreApplication.translate('device', 'Infinitton device connected'))
         else:
             self.status_message.setText(QCoreApplication.translate('device', 'Infinitton device not found'))

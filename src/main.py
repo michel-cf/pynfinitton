@@ -1,6 +1,7 @@
 import os
 import sys
 
+import config_path
 from PIL import Image, ImageDraw, ImageQt
 from PySide2.QtCore import QTranslator, QLocale
 from PySide2.QtGui import QIcon, QPixmap
@@ -25,7 +26,9 @@ if __name__ == '__main__':
     path = os.path.abspath(application_path)
     os.chdir(application_path)
 
-    device_manager = logic.DeviceManager()
+    configuration_file_path = config_path.ConfigPath('pynfinitton', 'creatingfuture.eu', '.ini')
+
+    device_manager = logic.DeviceManager(configuration_file_path)
 
     # If graphical
     width = 128
