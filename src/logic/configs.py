@@ -19,12 +19,19 @@ class ConfigContainer:
         self._config[namespace][key] = value
         self._persist_config()
 
+    def _get_config(self, namespace, key, fallback=None):
+        if namespace in self._config:
+            if key in self._config[namespace]:
+                return self._config[namespace][key]
+
+        return fallback
+
 
 class ApplicationConfig(ConfigContainer, ABC):
-    __APPLICATION_CONFIG_NAMESPACE = 'application'
+    __APPLICATION_CONFIG_NAMESPACE = 'Application'
 
     def __get_locale(self):
-        return self._config.get(ApplicationConfig.__APPLICATION_CONFIG_NAMESPACE, 'locale', fallback='en')
+        return self._get_config(ApplicationConfig.__APPLICATION_CONFIG_NAMESPACE, 'locale', fallback='en')
 
     def __set_locale(self, locale):
         self._set__config(ApplicationConfig.__APPLICATION_CONFIG_NAMESPACE, 'locale', locale)
@@ -33,13 +40,13 @@ class ApplicationConfig(ConfigContainer, ABC):
 
 
 class DeviceConfig(ConfigContainer, ABC):
-    __DEVICE_CONFIG_NAMESPACE = 'device'
+    __DEVICE_CONFIG_NAMESPACE = 'Device'
 
     def __get_initial_connect(self):
-        return self._config.get(DeviceConfig.__DEVICE_CONFIG_NAMESPACE, 'initial_connect')
+        return self._get_config(DeviceConfig.__DEVICE_CONFIG_NAMESPACE, 'initial_connect')
 
     def __get_last_connect(self):
-        return self._config.get(DeviceConfig.__DEVICE_CONFIG_NAMESPACE, 'last_connect')
+        return self._get_config(DeviceConfig.__DEVICE_CONFIG_NAMESPACE, 'last_connect')
 
     def _set_connect_time(self):
         if self.__get_initial_connect() is None:

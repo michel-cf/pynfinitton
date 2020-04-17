@@ -1,13 +1,16 @@
 import configparser
-from typing import Callable
+from typing import Callable, Optional, Dict
 
 import config_path
 import libinfinitton
 
-from . import configs
+from . import configs, screen, tasks
 
 
 class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
+    __TASK_TYPES = {
+        'type': tasks.TypeTask
+    }
 
     def __init__(self, configuration_file_path: config_path.ConfigPath, callback: Callable[[], None] = None):
         self._callback = callback
@@ -23,19 +26,35 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
         else:
             self._config.read(path)
 
-        self.device.on('down', self._on_press)
-        self.try_connect()
+        self._tasks = self._parse_tasks()
+        self._screens = self._parse_screens()
 
+        if len(self._screens) == 0:
+            self._screens['main'] = screen.Screen(self._tasks, 'main')
+
+        self._active_screen = self._screens['main']
+
+        self.device.on('down', self._on_press)
+        if not self.try_connect():
+            # todo start retry thread
+            pass
+
+    # USB Infinitton device methods
     @staticmethod
     def is_connected():
         return libinfinitton.Infinitton.is_present()
 
-    def try_connect(self) -> None:
-        if not self._device_active and self.is_connected():
+    def try_connect(self) -> bool:
+        if self._device_active:
+            return True
+        if self.is_connected():
             self.device.connect()
             self._device_active = True
 
             self._on_connect()
+            return True
+
+        return False
 
     def is_active(self) -> bool:
         return self._device_active
@@ -46,9 +65,10 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
         if self._callback is not None:
             self._callback()
 
-    def _on_press(self, key_index):
-        print('click ' + str(key_index))
+    def _on_press(self, key_index: int):
+        self._active_screen.execute_key(key_index)
 
+    # Config methods
     def _persist_config(self):
         with open(self._configuration_file_path.saveFilePath(True), 'w') as configfile:
             self._config.write(configfile)
@@ -56,3 +76,40 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
     @property
     def _config(self):
         return self.__config
+
+    # Tasks methods
+    def _parse_tasks(self) -> Dict[str, tasks.BaseTask]:
+        task_list = {}
+        for key in self._config:
+            if key[:5] == 'Task:':
+                task_name = key[5:]
+                task = self._parse_task(task_name, key)
+                if task is not None:
+                    task_list[task_name] = task
+
+        return task_list
+
+    def _parse_task(self, task_name: str, task_key: str) -> Optional[tasks.BaseTask]:
+        task_config = self._config[task_key]
+        task_type = task_config['type']
+
+        if task_type in DeviceManager.__TASK_TYPES:
+            return DeviceManager.__TASK_TYPES[task_type](task_name, task_config)
+
+        print('Unknown task type: ' + task_type)
+        return None
+
+    # Screen methods
+    def _parse_screens(self) -> Dict[str, screen.Screen]:
+        screen_list = {}
+        for key in self._config:
+            if key[:7] == 'Screen:':
+                screen_name = key[7:]
+                screen_list[screen_name] = self._parse_screen(screen_name, key)
+
+        return screen_list
+
+    def _parse_screen(self, screen_name: str, screen_key: str) -> screen.Screen:
+        screen_config = self._config[screen_key]
+
+        return screen.Screen(self._tasks, screen_name, screen_config)
