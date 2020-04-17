@@ -41,7 +41,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     translator = QTranslator()
-    translator.load(QLocale('nl'), 'pynfinitton', '.', directory=os.path.join(path, 'resources', 'translations'))
+    translator.load(QLocale(device_manager.locale), 'pynfinitton', '.', directory=os.path.join(path, 'resources', 'translations'))
     app.installTranslator(translator)
 
     window = gui.MainWindow(device_manager)
