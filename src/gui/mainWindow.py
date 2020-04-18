@@ -38,3 +38,6 @@ class MainWindow(QMainWindow):
                 self.status_message.setText(QCoreApplication.translate('device', 'Infinitton device connected'))
         else:
             self.status_message.setText(QCoreApplication.translate('device', 'Infinitton device not found'))
+
+    def get_device_manager(self):
+        return self._device_manager

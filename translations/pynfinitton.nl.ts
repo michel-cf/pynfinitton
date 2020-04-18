@@ -2,6 +2,30 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nl">
 <context>
+    <name>configs</name>
+    <message>
+        <location filename="src/gui/configWindow.py" line="18"/>
+        <source>Configs</source>
+        <comment>title</comment>
+        <translation>Pynfinitton configuraties</translation>
+    </message>
+    <message>
+        <location filename="src/gui/configWindow.py" line="22"/>
+        <source>Open on startup</source>
+        <translation>Open na starten</translation>
+    </message>
+    <message>
+        <location filename="src/gui/configWindow.py" line="28"/>
+        <source>Locale</source>
+        <translation>Taal</translation>
+    </message>
+    <message>
+        <location filename="src/gui/configWindow.py" line="30"/>
+        <source>Restart required</source>
+        <translation>Herstart vereist</translation>
+    </message>
+</context>
+<context>
     <name>device</name>
     <message>
         <location filename="src/gui/mainWindow.py" line="38"/>
@@ -22,19 +46,19 @@
 <context>
     <name>tray_icon</name>
     <message>
-        <location filename="src/gui/trayIcon.py" line="11"/>
+        <location filename="src/gui/trayIcon.py" line="15"/>
         <source>Open</source>
         <translation>Openen</translation>
     </message>
     <message>
-        <location filename="src/gui/trayIcon.py" line="13"/>
-        <source>Settings</source>
-        <translation>Configuratie</translation>
+        <location filename="src/gui/trayIcon.py" line="17"/>
+        <source>Configs</source>
+        <translation>Configuraties</translation>
     </message>
     <message>
-        <location filename="src/gui/trayIcon.py" line="15"/>
-        <source>Close</source>
-        <translation>Sluiten</translation>
+        <location filename="src/gui/trayIcon.py" line="20"/>
+        <source>Exit</source>
+        <translation>Afsluiten</translation>
     </message>
 </context>
 </TS>
