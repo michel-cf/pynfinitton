@@ -11,7 +11,9 @@ from . import configs, screen, tasks, deviceAccessor
 
 class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAccessor.DeviceAccessor):
     __TASK_TYPES = {
-        'type': tasks.TypeTask
+        'type': tasks.TypeTask,
+        'screen': tasks.ScreenTask,
+        'web-page': tasks.WebPageTask
     }
     logger = logging.getLogger(__name__)
 

@@ -1,3 +1,4 @@
+import webbrowser
 from abc import ABC, abstractmethod
 from typing import Dict, Optional
 
@@ -64,7 +65,7 @@ class BaseTask(ABC):
     @staticmethod
     def _get_config_value(task_config: Dict[str, str], param: str, fallback: Optional[str]=None) -> str:
         if param in task_config:
-            return task_config['param']
+            return task_config[param]
         return fallback
 
 
@@ -74,7 +75,7 @@ class TypeTask(BaseTask):
     _keyboard = keyboard.Controller()
 
     def _parse_config(self, task_config: dict):
-        self.__text = task_config['text']
+        self.__text = self._get_config_value(task_config, 'text')
 
     def _get_task_config(self) -> Dict[str, str]:
         return {
@@ -90,7 +91,7 @@ class ScreenTask(BaseTask):
     ICON = ''
 
     def _parse_config(self, task_config: dict):
-        self.__screen = task_config['screen']
+        self.__screen = self._get_config_value(task_config, 'screen')
 
     def _get_task_config(self) -> Dict[str, str]:
         return {
@@ -99,3 +100,21 @@ class ScreenTask(BaseTask):
 
     def execute(self):
         self._device_accessor.show_screen(self.__screen)
+
+
+class WebPageTask(BaseTask):
+    TYPE = 'web-page'
+    ICON = ''
+
+    def _parse_config(self, task_config: Dict[str, str]):
+        self.__url = self._get_config_value(task_config, 'url')
+
+    def _get_task_config(self) -> Dict[str, str]:
+        return {
+            'url': self.__url
+        }
+
+    def execute(self):
+        webbrowser.open(self.__url)
+
+
