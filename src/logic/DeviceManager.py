@@ -1,5 +1,6 @@
 import configparser
 import logging
+import os
 from typing import Callable, Optional, Dict
 
 import config_path
@@ -12,6 +13,7 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
     __TASK_TYPES = {
         'type': tasks.TypeTask
     }
+    logger = logging.getLogger(__name__)
 
     def __init__(self, configuration_file_path: config_path.ConfigPath, callback: Callable[[], None] = None):
         self._callback = callback
@@ -23,11 +25,10 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
         self.__config = configparser.ConfigParser()
         self._configuration_file_path = configuration_file_path
 
-        path = configuration_file_path.readFilePath()
-        if path is None:
-            self.locale = 'en'
-        else:
-            self._config.read(path)
+        path = configuration_file_path.readFolderPath(True)
+        config_file = os.path.join(path, 'config.ini')
+        if os.path.exists(config_file) and os.path.isfile(config_file):
+            self._config.read(config_file)
 
         self.tasks = self._parse_tasks()
         self.screens = self._parse_screens()
@@ -36,9 +37,7 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
             self.screens['main'] = screen.Screen(self.tasks, 'main')
 
         self.device.on('down', self._on_press)
-        if self.try_connect():
-            self.show_screen('main')
-        else:
+        if not self.try_connect():
             # todo start retry thread
             pass
 
@@ -74,7 +73,10 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
 
     # Config methods
     def _persist_config(self):
-        with open(self._configuration_file_path.saveFilePath(True), 'w') as configfile:
+        path = self._configuration_file_path.saveFolderPath(True)
+        config_file = os.path.join(path, 'config.ini')
+
+        with open(config_file, 'w') as configfile:
             self._config.write(configfile)
 
     @property
@@ -89,7 +91,7 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
                 task_name = key[5:]
                 task = self._parse_task(task_name, key)
                 if task is not None:
-                    task_list[task_name] = task
+                    task_list[task_name.lower()] = task
 
         return task_list
 
@@ -100,7 +102,7 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
         if task_type in DeviceManager.__TASK_TYPES:
             return DeviceManager.__TASK_TYPES[task_type](self, task_name, task_config)
 
-        logging.warning('Unknown task type: ' + task_type)
+        DeviceManager.logger.warning('Unknown task type: ' + task_type)
         return None
 
     # Screen methods
@@ -109,7 +111,7 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
         for key in self._config:
             if key[:7] == 'Screen:':
                 screen_name = key[7:]
-                screen_list[screen_name] = self._parse_screen(screen_name, key)
+                screen_list[screen_name.lower()] = self._parse_screen(screen_name, key)
 
         return screen_list
 
@@ -119,5 +121,5 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
         return screen.Screen(self.tasks, screen_name, screen_config)
 
     def show_screen(self, screen_name: str):
-        self._active_screen = self.screens[screen_name]
-        self._active_screen.show(self.device)
+        self._active_screen = self.screens[screen_name.lower()]
+        self._active_screen.show(self.device, self._configuration_file_path.readFolderPath())
