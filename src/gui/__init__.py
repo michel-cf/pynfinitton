@@ -1,1 +1,2 @@
-from gui.MainWindow import MainWindow
+from gui.mainWindow import MainWindow
+from gui.trayIcon import TrayIconMenu

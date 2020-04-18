@@ -3,14 +3,15 @@ import os
 import sys
 
 import config_path
-from PIL import Image, ImageDraw, ImageQt
 from PySide2.QtCore import QTranslator, QLocale
-from PySide2.QtGui import QIcon, QPixmap
-from PySide2.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction
+from PySide2.QtWidgets import QApplication
 
-import logic
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import  QSystemTrayIcon
+
 
 import gui
+import logic
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(name)s:%(levelname)s:%(message)s', level=logging.DEBUG)
@@ -33,34 +34,23 @@ if __name__ == '__main__':
     device_manager = logic.DeviceManager(configuration_file_path)
 
     # If graphical
-    width = 128
-    height = 128
-    image = Image.new('RGB', (width, height))
-    dc = ImageDraw.Draw(image)
-    dc.rectangle((width // 2, 0, width, height // 2), fill=(200, 200, 0))
-    dc.rectangle((0, height // 2, width // 2, height), fill=(0, 100, 100))
-
     app = QApplication(sys.argv)
 
     translator = QTranslator()
-    translator.load(QLocale(device_manager.locale), 'pynfinitton', '.', directory=os.path.join(path, 'resources', 'translations'))
+    translator.load(QLocale(device_manager.locale), 'pynfinitton', '.',
+                    directory=os.path.join(path, 'resources', 'translations'))
     app.installTranslator(translator)
 
     window = gui.MainWindow(device_manager)
     window.resize(800, 600)
-    window.show()
+    if device_manager.open_on_start:
+        window.show()
 
-    tray_icon_menu = QMenu()
-    tray_icon_menu_open_action = QAction("Open")
-    tray_icon_menu.addAction(tray_icon_menu_open_action)
-    tray_icon_menu_close_action = QAction("Close")
-    tray_icon_menu.addAction(tray_icon_menu_close_action)
+    tray_icon_menu = gui.TrayIconMenu(window)
 
-    icon = QIcon(QPixmap.fromImage(ImageQt.ImageQt(image)))
-    tray_icon = QSystemTrayIcon(icon, window)
+    tray_icon = QSystemTrayIcon(QIcon('resources/ui/light/app_icon.png'), window)
     tray_icon.setToolTip("Pynfinitton")
     tray_icon.setContextMenu(tray_icon_menu)
     tray_icon.show()
 
     sys.exit(app.exec_())
-

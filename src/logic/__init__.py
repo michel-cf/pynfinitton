@@ -1,1 +1,1 @@
-from logic.DeviceManager import DeviceManager
+from logic.deviceManager import DeviceManager
