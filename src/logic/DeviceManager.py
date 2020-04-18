@@ -1,19 +1,22 @@
 import configparser
+import logging
 from typing import Callable, Optional, Dict
 
 import config_path
 import libinfinitton
 
-from . import configs, screen, tasks
+from . import configs, screen, tasks, deviceAccessor
 
 
-class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
+class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAccessor.DeviceAccessor):
     __TASK_TYPES = {
         'type': tasks.TypeTask
     }
 
     def __init__(self, configuration_file_path: config_path.ConfigPath, callback: Callable[[], None] = None):
         self._callback = callback
+
+        self._active_screen: Optional[screen.Screen] = None  # To be initialized later
 
         self._device_active = False
         self.device = libinfinitton.Infinitton()
@@ -26,16 +29,16 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
         else:
             self._config.read(path)
 
-        self._tasks = self._parse_tasks()
-        self._screens = self._parse_screens()
+        self.tasks = self._parse_tasks()
+        self.screens = self._parse_screens()
 
-        if len(self._screens) == 0:
-            self._screens['main'] = screen.Screen(self._tasks, 'main')
-
-        self._active_screen = self._screens['main']
+        if len(self.screens) == 0:
+            self.screens['main'] = screen.Screen(self.tasks, 'main')
 
         self.device.on('down', self._on_press)
-        if not self.try_connect():
+        if self.try_connect():
+            self.show_screen('main')
+        else:
             # todo start retry thread
             pass
 
@@ -61,6 +64,7 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
 
     def _on_connect(self) -> None:
         self._set_connect_time()
+        self.show_screen('main')
 
         if self._callback is not None:
             self._callback()
@@ -94,9 +98,9 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
         task_type = task_config['type']
 
         if task_type in DeviceManager.__TASK_TYPES:
-            return DeviceManager.__TASK_TYPES[task_type](task_name, task_config)
+            return DeviceManager.__TASK_TYPES[task_type](self, task_name, task_config)
 
-        print('Unknown task type: ' + task_type)
+        logging.warning('Unknown task type: ' + task_type)
         return None
 
     # Screen methods
@@ -112,4 +116,8 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig):
     def _parse_screen(self, screen_name: str, screen_key: str) -> screen.Screen:
         screen_config = self._config[screen_key]
 
-        return screen.Screen(self._tasks, screen_name, screen_config)
+        return screen.Screen(self.tasks, screen_name, screen_config)
+
+    def show_screen(self, screen_name: str):
+        self._active_screen = self.screens[screen_name]
+        self._active_screen.show(self.device)

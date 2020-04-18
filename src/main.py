@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -12,6 +13,7 @@ import logic
 import gui
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Set working directory to root
     # https://pythonhosted.org/PyInstaller/runtime-information.html#run-time-information
