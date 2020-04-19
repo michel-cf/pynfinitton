@@ -38,6 +38,8 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
         if len(self.screens) == 0:
             self.screens['main'] = screen.Screen(self.tasks, 'main')
 
+        self.config_screen = 'main'
+
         self.device.on('down', self._on_press)
         if not self.try_connect():
             # todo start retry thread
@@ -125,3 +127,22 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
     def show_screen(self, screen_name: str):
         self._active_screen = self.screens[screen_name.lower()]
         self._active_screen.show(self.device, self._configuration_file_path.readFolderPath())
+
+    def __get_config_screen(self) -> screen.Screen:
+        return self._config_screen
+
+    def __set_config_screen(self, name: str):
+        self._config_screen = self.screens[name]
+
+    config_screen = property(__get_config_screen, __set_config_screen)
+
+    def make_unique_task_name(self, name: str):
+        if name.lower() in self.tasks:
+            unique = 0
+            unique_name = name + ' ' + str(unique)
+            while unique_name.lower() in self.tasks:
+                unique_name = name + ' ' + str(unique)
+                unique += 1
+            return unique_name
+        else:
+            return name

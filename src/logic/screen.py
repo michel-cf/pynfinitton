@@ -36,6 +36,9 @@ class Screen:
         else:
             Screen.logger.warning('Unknown task: ' + task_name)
 
+    def get_key_task(self, key_index: int) -> Optional[tasks.BaseTask]:
+        return self._keys[key_index]
+
     def get_config(self) -> Dict[str, str]:
         config = {}
         for key_index in range(15):
