@@ -1,9 +1,14 @@
+from typing import Optional
+
 from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton
 
+from gui import iconEditor
 import logic
 
 
 class ActionWidget(QWidget):
+
+    _icon_editor: Optional[iconEditor.IconEditor] = None
 
     def __init__(self, parent: QWidget, manager: logic.DeviceManager):
         QWidget.__init__(self)
@@ -15,7 +20,7 @@ class ActionWidget(QWidget):
         self._action_widget.hide()
         layout = QGridLayout()
 
-        self._icon_button = QPushButton(self._action_widget)
+        self._icon_button = QPushButton(self._action_widget, clicked=self._icon_clicked)
         self._icon_button.setFixedSize(72, 72)
         layout.addWidget(self._icon_button, 0, 0)
 
@@ -45,3 +50,9 @@ class ActionWidget(QWidget):
             self._action_widget.show()
         else:
             self._action_widget.hide()
+
+    def _icon_clicked(self):
+        if ActionWidget._icon_editor is None:
+            ActionWidget._icon_editor = iconEditor.IconEditor(None)
+
+        ActionWidget._icon_editor.show()
