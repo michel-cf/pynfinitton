@@ -2,13 +2,13 @@ from typing import Optional
 
 from PySide2.QtWidgets import QWidget, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton
 
-from gui import iconEditor
+from gui import icon_picker
 import logic
 
 
 class ActionWidget(QWidget):
 
-    _icon_editor: Optional[iconEditor.IconEditor] = None
+    _icon_picker: Optional[icon_picker.IconPicker] = None
 
     def __init__(self, parent: QWidget, manager: logic.DeviceManager):
         QWidget.__init__(self)
@@ -52,7 +52,7 @@ class ActionWidget(QWidget):
             self._action_widget.hide()
 
     def _icon_clicked(self):
-        if ActionWidget._icon_editor is None:
-            ActionWidget._icon_editor = iconEditor.IconEditor(None)
+        if ActionWidget._icon_picker is None:
+            ActionWidget._icon_picker = icon_picker.IconPicker(None, self._manager.get_icon_folder())
 
-        ActionWidget._icon_editor.show()
+        ActionWidget._icon_picker.show()

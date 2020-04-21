@@ -146,3 +146,6 @@ class DeviceManager(configs.ApplicationConfig, configs.DeviceConfig, deviceAcces
             return unique_name
         else:
             return name
+
+    def get_icon_folder(self):
+        return os.path.join(self._configuration_file_path.saveFolderPath(), 'icons')
