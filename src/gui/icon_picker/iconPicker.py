@@ -3,7 +3,7 @@ import os
 from PySide2.QtCore import QCoreApplication
 from PySide2.QtWidgets import QDialog, QGridLayout, QVBoxLayout, QTabWidget
 
-from . import iconPickTab, iconEditor
+from . import iconPickTab, iconEditor, importTab
 
 
 class IconPicker(QDialog):
@@ -25,12 +25,14 @@ class IconPicker(QDialog):
         self._icon_pick_tab_built_in = iconPickTab.IconPickTab(self, os.path.join(os.getcwd(), 'resources', 'icons'),
                                                                False)
         self._icon_editor_tab = iconEditor.IconEditor(self)
+        self._import_tab = importTab.ImportTab(self)
 
         layout = QVBoxLayout()
         tabs = QTabWidget(self)
         tabs.addTab(self._icon_pick_tab_user, 'Icon picker')
         tabs.addTab(self._icon_pick_tab_built_in, 'Built in icons')
         tabs.addTab(self._icon_editor_tab, 'Icon editor')
+        tabs.addTab(self._import_tab, 'Import tab')
 
         layout.addWidget(tabs)
         self.setLayout(layout)
