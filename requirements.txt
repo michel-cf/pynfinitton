@@ -1,7 +1,7 @@
 config-path==1.0.0
 hid==1.0.4
 libinfinitton==0.3
-Pillow==8.3.2
+Pillow==9.0.1
 PyEventEmitter==1.0.5
 pynput==1.6.8
 PySide2==5.14.2
